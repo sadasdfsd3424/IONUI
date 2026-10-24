@@ -78,13 +78,13 @@ VexUI.DefaultProps = {
 VexUI.Themes = {
     Dark = {
         Name = "Dark",
-        Background = Color3.fromRGB(0, 0, 0),
-        SideBar = Color3.fromRGB(0, 0, 0),
-        Text = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(0, 0, 0),
-        Outline = Color3.fromRGB(255, 255, 255),
-        Placeholder = Color3.fromRGB(0, 0, 0),
-        IconColor = Color3.fromRGB(255, 255, 255),
+        Background = Color3.fromRGB(12, 12, 12),
+        SideBar = Color3.fromRGB(9, 9, 9),
+        Text = Color3.fromRGB(245, 245, 245),
+        ElementColor = Color3.fromRGB(20, 20, 20),
+        Outline = Color3.fromRGB(42, 42, 42),
+        Placeholder = Color3.fromRGB(31, 31, 31),
+        IconColor = Color3.fromRGB(235, 235, 235),
     },
     Light = {
         Name = "Light",
@@ -136,7 +136,7 @@ Palette("Halloween", "171311", "29201b", "f2e7dc", "ff943d")
 -- Semantic colors keep custom themes compatible with the component palette.
 for name, theme in pairs(VexUI.Themes) do
     theme.Accent = theme.Accent or ({
-        Dark = Color3.fromRGB(177, 195, 220),
+        Dark = Color3.fromRGB(245, 245, 245),
         Light = Color3.fromRGB(20, 116, 92),
         Forest = Color3.fromRGB(158, 207, 139),
         Amethyst = Color3.fromRGB(188, 163, 235),
@@ -372,7 +372,7 @@ function Utility:Element(RightScroll, ElementFrame, sizeY, scope)
         ThemeID = {BackgroundColor3 = Utility:T(scope, "Background", "ElementColor")},
     }, {
         Utility:GlassStroke(),
-        VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 8)}),
+        VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 10)}),
     })
     local inner = VexUI:Create("Frame", {
         Name = "TextColumn", Parent = card, BackgroundTransparency = 1,
@@ -1376,54 +1376,49 @@ function UI:_BuildWindow(Config, startup)
     enableDragging(Main)
 
     Utility:GlassStroke("Outline", 1).Parent = Main
+    local PageIconBadge = VexUI:Create("Frame", {
+        Name = "PageIconBadge", Parent = Main,
+        Position = UDim2.new(0, Window.SideBarWidth + 18, 0, 9),
+        Size = UDim2.fromOffset(34, 34), BorderSizePixel = 0, ZIndex = 200,
+        ThemeID = {BackgroundColor3 = "ElementColor"},
+    }, {
+        VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 10)}),
+        Utility:GlassStroke("Outline", 1),
+    })
+    local PageIcon = VexUI:Create("ImageLabel", {
+        Name = "PageIcon", Parent = PageIconBadge,
+        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromOffset(17, 17), BackgroundTransparency = 1,
+        ZIndex = 201, ThemeID = {ImageColor3 = "IconColor"},
+    })
     local TitleLabel = VexUI:Create("TextLabel", {
-        Name = "AeroTitle", Parent = Main,
+        Name = "PageTitle", Parent = Main,
         Text = Window.Name, TextSize = 15,
-        Font = Enum.Font.GothamMedium,
-        Position = UDim2.new(0, 84, 0, 8),
-        Size = UDim2.new(1, -168, 0, 36),
+        Font = Enum.Font.GothamSemibold,
+        Position = UDim2.new(0, Window.SideBarWidth + 64, 0, 8),
+        Size = UDim2.new(1, -Window.SideBarWidth - 280, 0, 23),
         BackgroundTransparency = 1,
-        TextXAlignment = Enum.TextXAlignment.Center,
+        TextXAlignment = Enum.TextXAlignment.Left,
         TextTruncate = Enum.TextTruncate.AtEnd,
         ZIndex = 200, ThemeID = { TextColor3 = "Text" },
     })
+    local PageSubtitle = VexUI:Create("TextLabel", {
+        Name = "PageSubtitle", Parent = Main,
+        Text = "Movement and view settings.", TextSize = 11,
+        Font = Enum.Font.Gotham,
+        Position = UDim2.new(0, Window.SideBarWidth + 64, 0, 30),
+        Size = UDim2.new(1, -Window.SideBarWidth - 280, 0, 17),
+        BackgroundTransparency = 1, TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 200,
+        ThemeID = {TextColor3 = "Muted"},
+    })
     VexUI:Create("Frame", {
         Name = "HeaderRule", Parent = Main,
-        Position = UDim2.new(0, 16, 0, Window.Topbar.Height + 7),
-        Size = UDim2.new(1, -32, 0, 1),
-        ZIndex = 199, BackgroundTransparency = 0.55,
+        Position = UDim2.new(0, Window.SideBarWidth, 0, Window.Topbar.Height + 7),
+        Size = UDim2.new(1, -Window.SideBarWidth - 20, 0, 1),
+        ZIndex = 199, BackgroundTransparency = 0,
         ThemeID = { BackgroundColor3 = "Outline" },
     })
-    local HeaderAccent = VexUI:Create("Frame", {
-        Name = "HeaderAccent", Parent = Main,
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.new(0.5, 0, 0, Window.Topbar.Height + 7),
-        Size = UDim2.new(0, 0, 0, 2),
-        BackgroundTransparency = 0.2, ZIndex = 200,
-        ThemeID = {BackgroundColor3 = "Accent"},
-    }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 1)})})
-    do
-        local function fitHeaderAccent()
-            local scale = math.max(0.05, Main.UIScale.Scale)
-            local availableWidth = TitleLabel.AbsoluteSize.X / scale
-            local textWidth = game:GetService("TextService"):GetTextSize(
-                TitleLabel.Text, TitleLabel.TextSize, TitleLabel.Font,
-                Vector2.new(100000, 100000)
-            ).X
-            HeaderAccent.Size = UDim2.new(0, math.min(textWidth, availableWidth), 0, 2)
-            HeaderAccent.Position = UDim2.new(
-                TitleLabel.Position.X.Scale + TitleLabel.Size.X.Scale / 2,
-                TitleLabel.Position.X.Offset + TitleLabel.Size.X.Offset / 2,
-                0, Window.Topbar.Height + 7
-            )
-        end
-        TitleLabel:GetPropertyChangedSignal("Text"):Connect(fitHeaderAccent)
-        TitleLabel:GetPropertyChangedSignal("TextSize"):Connect(fitHeaderAccent)
-        TitleLabel:GetPropertyChangedSignal("Font"):Connect(fitHeaderAccent)
-        TitleLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitHeaderAccent)
-        Main.UIScale:GetPropertyChangedSignal("Scale"):Connect(fitHeaderAccent)
-        fitHeaderAccent()
-    end
     local function HeaderButton(name, icon, offset, callback)
         local button = VexUI:Create("ImageButton", {
             Name = name, Parent = Main, Image = "",
@@ -2529,12 +2524,30 @@ function UI:_BuildWindow(Config, startup)
     local TabFrame = VexUI:Create("Frame", {
         Name = "Sidebar", Parent = Main,
         AnchorPoint = Vector2.new(0, 0),
-        Position = UDim2.new(0, 0, 0, Window.Topbar.Height + 13),
-        Size = UDim2.new(0, Window.SideBarWidth, 0, Window.Size.Y.Offset - Window.Topbar.Height - 13),
+        Position = UDim2.new(0, 0, 0, 0),
+        Size = UDim2.new(0, Window.SideBarWidth, 1, 0),
         ClipsDescendants = true, ZIndex = 3,
-        BackgroundTransparency = 1,
+        BackgroundTransparency = 0,
         ThemeID = {BackgroundColor3 = "SideBar"},
-    }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 16)})})
+    })
+
+    VexUI:Create("TextLabel", {
+        Name = "BrandTitle", Parent = TabFrame,
+        Position = UDim2.new(0, 22, 0, 13), Size = UDim2.new(1, -34, 0, 20),
+        BackgroundTransparency = 1, Text = Window.Name, TextSize = 14,
+        Font = Enum.Font.GothamSemibold, TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 8,
+        ThemeID = {TextColor3 = "Text"},
+    })
+    VexUI:Create("TextLabel", {
+        Name = "BrandSubtitle", Parent = TabFrame,
+        Position = UDim2.new(0, 22, 0, 34), Size = UDim2.new(1, -34, 0, 15),
+        BackgroundTransparency = 1, Text = Window.Author or "TPS Script",
+        TextSize = 10, Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 8,
+        ThemeID = {TextColor3 = "Muted"},
+    })
 
     --USER
     local UserFrame = VexUI:Create("Frame", {
@@ -2641,8 +2654,8 @@ function UI:_BuildWindow(Config, startup)
         BackgroundTransparency = 1,
         BorderColor3 = Color3.fromRGB(0, 0, 0),
         BorderSizePixel = 0,
-        Position = UDim2.new(0, 0, 0, 8),
-        Size = UDim2.new(1, 0, 1, UserFrame.Visible and -64 or -16),
+        Position = UDim2.new(0, 0, 0, 62),
+        Size = UDim2.new(1, 0, 1, UserFrame.Visible and -118 or -70),
         ScrollBarThickness = 0
     },{
         VexUI:Create("UIListLayout", {
@@ -2652,9 +2665,9 @@ function UI:_BuildWindow(Config, startup)
             Padding = UDim.new(0, 7)
         }),
         VexUI:Create("UIPadding", {
-            PaddingLeft = UDim.new(0, 16),
-            PaddingRight = UDim.new(0, 5),
-            PaddingBottom = UDim.new(0, 20),
+            PaddingLeft = UDim.new(0, 12),
+            PaddingRight = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 14),
             --PaddingTop = UDim.new(0, 10),
         })
     })
@@ -2662,9 +2675,9 @@ function UI:_BuildWindow(Config, startup)
 
     VexUI:Create("Frame", {
         Name = "SidebarRule", Parent = TabFrame,
-        Position = UDim2.new(1, -1, 0, 10),
+        Position = UDim2.new(1, -1, 0, 12),
         Size = UDim2.new(0, 1, 1, -24),
-        BackgroundTransparency = 0.65, ZIndex = 5,
+        BackgroundTransparency = 0, ZIndex = 5,
         ThemeID = {BackgroundColor3 = "Outline"},
     })
 
@@ -2693,7 +2706,7 @@ function UI:_BuildWindow(Config, startup)
             Position = UDim2.new(0, 0, 0, 0),
             AutomaticSize = "None",
             BorderColor3 = Color3.new(0, 0, 0),
-            BackgroundTransparency = Tab.Border and 0.6 or 1,
+            BackgroundTransparency = 1,
             Size = UDim2.new(0, Window.SideBarWidth - 26, 0, UserInputService.TouchEnabled and 44 or 38),
             BackgroundColor3 = Color3.fromRGB(0, 0, 0),
             BorderSizePixel = 0,
@@ -2774,7 +2787,7 @@ function UI:_BuildWindow(Config, startup)
             TabTitle.UIPadding.PaddingLeft = UDim.new(0,42)
         end
         TabBack.BackgroundTransparency = 1
-        TabTitle.TextTransparency = 0.3
+        TabTitle.TextTransparency = 0.28
         TabBack.UIStroke.Transparency = 1
         if TabIcon then
             TabIcon.ImageTransparency = 0.3
@@ -2828,6 +2841,9 @@ function UI:_BuildWindow(Config, startup)
 
         
        local function SelectTab()
+            TitleLabel.Text = Tab.Title
+            PageSubtitle.Text = "Settings and controls for " .. Tab.Title .. "."
+            PageIcon.Image = GetIcon(Tab.Icon or "settings-2")
             for i, v in next, ElementFolder:GetChildren() do
                 if v:IsA("GuiObject") then
                     v.Visible = false
@@ -2852,8 +2868,8 @@ function UI:_BuildWindow(Config, startup)
                     end
                 end
             end
-            Utility:TweenObject(TabBack, {BackgroundTransparency = 0.35}, 0.18)
-            Utility:TweenObject(TabBack.UIStroke, {Transparency = 0.35}, 0.2)
+            Utility:TweenObject(TabBack, {BackgroundTransparency = 0}, 0.16)
+            Utility:TweenObject(TabBack.UIStroke, {Transparency = 0.82}, 0.16)
             VexUI:AddThemeObject(TabTitle, {TextColor3 = "Tab.ActiveText|Accent"})
             Utility:TweenObject(TabTitle, {TextTransparency = 0}, 0.2)
             if TabIcon then
@@ -3188,7 +3204,7 @@ function UI:_BuildWindow(Config, startup)
                 Position = UDim2.new(.96, 0, 0.5, 0),
                 ClipsDescendants = true,
                 BackgroundTransparency = 0.5,
-                Size = UDim2.new(0, 38, 0, 24),
+                Size = UDim2.new(0, 40, 0, 22),
                 ZIndex = 15,
                 ThemeID = {
                     BackgroundColor3 = "Toggle.Placeholder|Placeholder"
@@ -3196,21 +3212,23 @@ function UI:_BuildWindow(Config, startup)
             },{
                 VexUI:Create("Frame", {
                     AnchorPoint = Vector2.new(0.5, 0.5),
-                    Position = UDim2.new(0, 12, 0.5, 0),
+                    Position = UDim2.new(0, 11, 0.5, 0),
                     ClipsDescendants = true,
-                    BackgroundTransparency = 0.8,
-                    Size = UDim2.new(0, 16, 0, 16),
+                    BackgroundTransparency = 0,
+                    Size = UDim2.new(0, 14, 0, 14),
                     ZIndex = 15,
-                    ThemeID = {
-                        BackgroundColor3 = "Toggle.ToggleVal|Text"
-                    }
+                    ThemeID = {BackgroundColor3 = "Toggle.KnobInactive|Muted"}
                 },{
                     VexUI:Create("UICorner", {
-                        CornerRadius = UDim.new(0, 32),
+                        CornerRadius = UDim.new(1, 0),
                     }),
                 }),
                 VexUI:Create("UICorner", {
-                    CornerRadius = UDim.new(0, 12),
+                    CornerRadius = UDim.new(1, 0),
+                }),
+                VexUI:Create("UIStroke", {
+                    Thickness = 1, Transparency = 0.35,
+                    ThemeID = {Color = "Outline"},
                 }),
             })
 
@@ -3250,11 +3268,14 @@ function UI:_BuildWindow(Config, startup)
                 VexUI:AddThemeObject(ToggleV, {
                     BackgroundColor3 = Val and "Toggle.Active|Accent" or "Toggle.Placeholder|Placeholder"
                 })
-                ToggleV.BackgroundTransparency = Val and 0.12 or 0
+                VexUI:AddThemeObject(ToggleV.Frame, {
+                    BackgroundColor3 = Val and "Toggle.KnobActive|Background" or "Toggle.KnobInactive|Muted"
+                })
+                ToggleV.BackgroundTransparency = 0
                 local properties = {
-                    Position = UDim2.new(0, Val and 26 or 12, 0.5, 0),
-                    BackgroundTransparency = Val and 0 or 0.55,
-                    Size = UDim2.new(0, 16, 0, 16),
+                    Position = UDim2.new(0, Val and 29 or 11, 0.5, 0),
+                    BackgroundTransparency = 0,
+                    Size = UDim2.new(0, 14, 0, 14),
                 }
                 if animate then
                     knobTween = TweenService:Create(ToggleV.Frame,
@@ -3431,7 +3452,7 @@ function UI:_BuildWindow(Config, startup)
             local card = VexUI:Create("Frame", {
                 Name = "Card", Parent = row, Size = UDim2.new(1, 0, 1, 0), ZIndex = 15,
                 ClipsDescendants = false, ThemeID = {BackgroundColor3 = "Slider.Background|ElementColor"},
-            }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 8)}), Utility:GlassStroke()})
+            }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 10)}), Utility:GlassStroke()})
             local textColumn = VexUI:Create("Frame", {
                 Name = "TextColumn", Parent = card, Position = UDim2.new(0, 0, 0, 8),
                 Size = UDim2.new(1, -82, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
@@ -3443,7 +3464,7 @@ function UI:_BuildWindow(Config, startup)
                 Position = UDim2.new(1, -12, 0, 8), Size = UDim2.new(0, 64, 0, 26),
                 Text = "", TextSize = 12, Font = Enum.Font.GothamMedium,
                 ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Center,
-                BackgroundTransparency = 0.35, BorderSizePixel = 0, ZIndex = 20,
+                BackgroundTransparency = 0, BorderSizePixel = 0, ZIndex = 20,
                 ThemeID = {BackgroundColor3 = "Slider.Placeholder|Placeholder", TextColor3 = "Slider.ValueText|Accent"},
             }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(0, 5)})})
             local hit = VexUI:Create("TextButton", {
@@ -3453,8 +3474,8 @@ function UI:_BuildWindow(Config, startup)
             })
             local rail = VexUI:Create("Frame", {
                 Name = "Track", Parent = hit, AnchorPoint = Vector2.new(0, 0.5),
-                Position = UDim2.new(0, 9, 0.5, 0), Size = UDim2.new(1, -18, 0, 4),
-                BackgroundTransparency = 0.25, Active = false, ZIndex = 23,
+                Position = UDim2.new(0, 9, 0.5, 0), Size = UDim2.new(1, -18, 0, 5),
+                BackgroundTransparency = 0, Active = false, ZIndex = 23,
                 ThemeID = {BackgroundColor3 = "Slider.Track|Outline"},
             }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(1, 0)})})
             local fill = VexUI:Create("Frame", {
@@ -3463,17 +3484,17 @@ function UI:_BuildWindow(Config, startup)
             }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(1, 0)})})
             local thumb = VexUI:Create("Frame", {
                 Name = "Thumb", Parent = rail, AnchorPoint = Vector2.new(0.5, 0.5),
-                Position = UDim2.new(0, 0, 0.5, 0), Size = UDim2.new(0, 12, 0, 12),
+                Position = UDim2.new(0, 0, 0.5, 0), Size = UDim2.new(0, 14, 0, 14),
                 Active = false, ZIndex = 25, ThemeID = {BackgroundColor3 = "Text"},
             }, {VexUI:Create("UICorner", {CornerRadius = UDim.new(1, 0)}),
-                VexUI:Create("UIStroke", {Thickness = 2, Transparency = 0.1,
+                VexUI:Create("UIStroke", {Thickness = 1, Transparency = 0,
                     ThemeID = {Color = "Slider.SliderPart|Accent"}})})
 
             local value = NormalizeValue(Slider.Value.Default)
             local destroyed, editing = false, false
             local inputOwner, phase, startValue
             local scrollWasEnabled, movedConnection, endedConnection
-            local renderSize = 12
+            local renderSize = 14
             local function Paint()
                 local fraction = Ratio(value)
                 fill.Size = UDim2.new(fraction, 0, 1, 0)
@@ -4443,7 +4464,7 @@ function UI:_BuildWindow(Config, startup)
             Utility:TweenObject(UserSub, {TextTransparency = Value and 0.6 or 1}, 0.2)
             Utility:TweenObject(UserFrame.ImageLabel, {ImageTransparency = Value and 0 or 1,BackgroundTransparency = Value and 0 or 1}, 0.2)
             UserFrame.Visible = Value
-            LeftScroll.Size = UDim2.new(1, 0, 1, Value and -64 or -16)
+            LeftScroll.Size = UDim2.new(1, 0, 1, UserFrame.Visible and -118 or -70)
         end
         function Window:Anonymous(Value)
             UserTitle.Text = Value and "Anonymous" or game:GetService("Players").LocalPlayer.DisplayName
@@ -4531,7 +4552,7 @@ function UI:_BuildWindow(Config, startup)
         Position = UDim2.new(0, 0, 0.5, 0),
         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
         BackgroundTransparency = 0.2,
-        Text = "AERO",
+        Text = "ION",
         TextTransparency = 0,
         ThemeID = {TextColor3 = "Accent"},
         TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -4550,7 +4571,7 @@ function UI:_BuildWindow(Config, startup)
     local visibilityRevision = 0
     local function RestoreTransparency(duration)
         Utility:TweenObject(Main, {BackgroundTransparency = Window.TransparencyNum}, duration)
-        local sidebarAlpha = 1
+        local sidebarAlpha = 0
         Utility:TweenObject(TabFrame, {BackgroundTransparency = sidebarAlpha}, duration)
         for _, child in ipairs(TabFrame:GetChildren()) do
             if child:IsA("Frame") and child.Size == UDim2.new(0, 16, 0, 16) then
@@ -4571,9 +4592,9 @@ function UI:_BuildWindow(Config, startup)
         Main.Visible = true
         MobileBtn.Visible = false
         Window.Default = "Default"
-        Utility:TweenObject(TabFrame, {Size = UDim2.new(0, Window.SideBarWidth, 0, Window.Size.Y.Offset - Window.Topbar.Height - 13)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        Utility:TweenObject(TabFrame, {Size = UDim2.new(0, Window.SideBarWidth, 1, 0)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
         RestoreTransparency(0.2)
-        Utility:TweenObject(LeftScroll, {Size = UDim2.new(1, 0, 1, UserFrame.Visible and -64 or -16)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        Utility:TweenObject(LeftScroll, {Size = UDim2.new(1, 0, 1, UserFrame.Visible and -118 or -70)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
         Utility:TweenObject(contentFrame, {Size = UDim2.new(0, Window.Size.X.Offset - 182 + 133 + 5, 0, Window.Topbar.Height)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out) --0, Window.Size.X.Offset, 0, Window.Size.Y.Offset-8
         contentFrame.Visible = true
         Utility:TweenObject(Main, {Size = UDim2.new(0, Window.Size.X.Offset, 0, Window.Size.Y.Offset)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out) --UDim2.new(0, Window.Size.X.Offset, 0, Window.Size.Y.Offset)
@@ -4709,12 +4730,13 @@ function UI:_BuildWindow(Config, startup)
     function Window:SetTitle(v)
         Window.Name = v
         LibName.Text = v
-        TitleLabel.Text = v
+        TabFrame.BrandTitle.Text = v
     end
 
     function Window:SetAuthor(v)
         Window.Author = v
         LibAuthor.Text = v or ""
+        TabFrame.BrandSubtitle.Text = v or "TPS Script"
     end
 
     function Window:ToCenter()
@@ -4784,7 +4806,7 @@ function UI:_BuildWindow(Config, startup)
         Utility:TweenObject(Main, {Size = UDim2.new(0, sizeX, 0, sizeY)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
         Utility:TweenObject(contentFrame, {Size = UDim2.new(0, sizeX, 0, sizeY - 8)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
         Utility:TweenObject(TopBarF1, {Size = UDim2.new(0, sizeX - 20 - TopBarF2.Size.X.Offset - 187, 0, Window.Topbar.Height)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-        Utility:TweenObject(TabFrame, {Size = UDim2.new(0, Window.SideBarWidth, 0, Window.Size.Y.Offset - Window.Topbar.Height - 13)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        Utility:TweenObject(TabFrame, {Size = UDim2.new(0, Window.SideBarWidth, 1, 0)}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
         --Main.Size = UDim2.new(0, sizeX, 0, sizeY)
         --contentFrame.Size = UDim2.new(0, sizeX, 0, sizeY - 8)
         --TopBarF1.Size = UDim2.new(0, sizeX - 20 - TopBarF2.Size.X.Offset - 187, 0, Window.Topbar.Height)
@@ -5257,7 +5279,7 @@ function UI:_BuildWindow(Config, startup)
         Render()
         query:CaptureFocus()
     end
-    HeaderButton("SearchButton", "search", 0, OpenControlSearch).Position = UDim2.new(0,82,0,12)
+    HeaderButton("SearchButton", "search", 0, OpenControlSearch).Position = UDim2.new(1,-178,0,12)
     local DiscordButton = HeaderButton("DiscordButton", "message-circle", 0, function()
         local copy = setclipboard or toclipboard
         if type(copy) ~= "function" then
@@ -5267,7 +5289,7 @@ function UI:_BuildWindow(Config, startup)
         local ok = pcall(copy, "https://discord.gg/4Vq35Jvd3C")
         NotifyAction("Discord", ok and "Discord invite copied to clipboard" or "Could not copy Discord invite.")
     end)
-    DiscordButton.Position = UDim2.new(0,114,0,12)
+    DiscordButton.Position = UDim2.new(1,-144,0,12)
     -- Use the Discord brand glyph from the existing Geist icon spritesheet.
     local discordIcon = IconsV2.Icon2("logo-discord", "geist")
     local discordImage = DiscordButton:FindFirstChildOfClass("ImageLabel")
@@ -5278,8 +5300,8 @@ function UI:_BuildWindow(Config, startup)
         discordImage.Position = UDim2.new(0.5,-8,0.5,-8)
         discordImage.Size = UDim2.fromOffset(16,16)
     end
-    TitleLabel.Position = UDim2.new(0,148,0,8)
-    TitleLabel.Size = UDim2.new(1,-264,0,36)
+    TitleLabel.Position = UDim2.new(0,Window.SideBarWidth + 64,0,8)
+    TitleLabel.Size = UDim2.new(1,-Window.SideBarWidth - 280,0,23)
 
 
     -- Generic extension point. Feature code and service URLs belong to callers.
@@ -5327,9 +5349,8 @@ function UI:_BuildWindow(Config, startup)
         local count = (Window._PanelCount or 0) + 1
         Window._PanelCount = count
         local button = HeaderButton(options.Name or "CustomPanelButton", options.Icon or "message-circle", 0, function() api:Toggle() end)
-        button.Position = UDim2.new(0,114 + count * 32,0,12)
-        TitleLabel.Position = UDim2.new(0,148 + count * 32,0,8)
-        TitleLabel.Size = UDim2.new(1,-264 - count * 32,0,36)
+        button.Position = UDim2.new(1,-(178 + count * 32),0,12)
+        TitleLabel.Size = UDim2.new(1,-Window.SideBarWidth - 280 - count * 32,0,23)
         api.Button = button
         return api
     end
@@ -5554,7 +5575,7 @@ function UI:Notification(Config)
         ImageTransparency = 1, ZIndex = 2004,
     }, {VexUI:Create("ImageLabel", {
         Image = GetIcon("x"), BackgroundTransparency = 1,
-        Position = UDim2.new(0.5, -6, 0.5, -6), Size = UDim2.new(0, 12, 0, 12),
+        Position = UDim2.new(0.5, -6, 0.5, -6), Size = UDim2.new(0, 14, 0, 14),
         ZIndex = 2005, ThemeID = {ImageColor3 = "Muted"},
     })})
     local track = VexUI:Create("Frame", {
